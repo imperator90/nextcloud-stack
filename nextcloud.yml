@@ -1,0 +1,56 @@
+---
+version: "2"
+services:
+
+  nextcloud:
+    image: linuxserver/nextcloud
+    container_name: nextcloud
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - VIRTUAL_HOST=${DOMAIN}
+    volumes:
+      - /portainer/Files/AppData/Config/Nextcloud/Config:/config
+      - ${MOUNTED_DATA_PATH}/data:/var/html/www/data
+      - ${MOUNTED_DATA_PATH}/apps:/var/html/www/apps
+    ports:
+      - ${PORT}:443
+    restart: unless-stopped
+    links:
+      - nextcloud_db
+      - redis
+      - collabora
+
+  nextcloud_db:
+    image: linuxserver/mariadb
+    container_name: nextcloud_db
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+      - MYSQL_DATABASE=nextcloud_db
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - /portainer/Files/AppData/Config/Nextcloud/DB:/config
+      - ${MOUNTED_DATABASE_PATH}:/var/lib/mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis
+    restart: unless-stopped
+
+  collabora:
+    image: collabora/code
+    expose:
+      - 9980
+    cap_add:
+      - MKNOD
+    environment:
+      - domain=${DOMAIN}
+      - VIRTUAL_HOST=${COLLABORA_PREFIX}.${DOMAIN}
+      - VIRTUAL_PORT=9980
+      - VIRTUAL_PROTO=https
+    restart: unless-stopped
