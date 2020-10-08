@@ -65,7 +65,7 @@
             }
         ],
         "repository": {
-            "url": "https://...",
+            "url": "https://github.com/yarcod/nextcloud-stack",
             "stackfile": "nextcloud.yml"
         }
     } ]
