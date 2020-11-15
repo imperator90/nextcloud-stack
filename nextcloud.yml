@@ -9,7 +9,13 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - VIRTUAL_HOST=${DOMAIN}
+      # The domain name used to access Nextcloud. Ever used?
+      - VIRTUAL_HOST=${NEXTCLOUD_VIRTUAL_HOST}
+      - MYSQL_DATABASE=nextcloud_db
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=nextcloud_db
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_VIRTUAL_HOST}
     volumes:
       - /portainer/Files/AppData/Config/Nextcloud/Config:/config
       - ${MOUNTED_DATA_PATH}/data:/var/html/www/data
@@ -17,10 +23,11 @@ services:
     ports:
       - ${PORT}:443
     restart: unless-stopped
-    links:
+    depends_on:
       - nextcloud_db
       - redis
-      - collabora
+    networks:
+      - nextcloud_network
 
   nextcloud_db:
     image: linuxserver/mariadb
@@ -36,21 +43,39 @@ services:
     volumes:
       - /portainer/Files/AppData/Config/Nextcloud/DB:/config
       - ${MOUNTED_DATABASE_PATH}:/var/lib/mysql
+    networks:
+      - nextcloud_network
     restart: unless-stopped
 
   redis:
     image: redis
+    networks:
+      - nextcloud_network
     restart: unless-stopped
 
   collabora:
     image: collabora/code
     expose:
       - 9980
-    cap_add:
-      - MKNOD
+    #cap_add: # Apparently Collaboras documentation has at some point omitted this cap. Testing w/o
+    #  - MKNOD
     environment:
-      - domain=${DOMAIN}
-      - VIRTUAL_HOST=${COLLABORA_PREFIX}.${DOMAIN}
-      - VIRTUAL_PORT=9980
-      - VIRTUAL_PROTO=https
+      # Domain the service should be accessed from, e.g. cloud.example.com
+      - domain=${NEXTCLOUD_VIRTUAL_HOST}
+      - VIRTUAL_HOST=${COLLABORA_VIRTUAL_HOST}
+      - DONT_GEN_SSL_CERT=YES
+      - LETSENCRYPT_HOST=${COLLABORA_VIRTUAL_HOST}
+      #- VIRTUAL_PORT=9980 # is default, leave for clarity
+      # Extra parameters to Collabora, see also
+      # https://www.collaboraoffice.com/code/nginx-reverse-proxy/
+      # SSL terminates at the proxy
+      - extra_params=--o:ssl.enable=false --o:ssl.termination=true
+    networks:
+      - nextcloud_network
+    depends_on:
+      - nextcloud
     restart: unless-stopped
+
+networks:
+  # Enables communication between all containers on the network. Replaces "links"
+  nextcloud_network: 
