@@ -18,8 +18,8 @@ services:
       - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_VIRTUAL_HOST}
     volumes:
       - /portainer/Files/AppData/Config/Nextcloud/Config:/config
-      - ${MOUNTED_DATA_PATH}/data:/var/html/www/data
-      - ${MOUNTED_DATA_PATH}/apps:/var/html/www/apps
+      - ${MOUNTED_DATA_PATH}/data:/data
+      - ${MOUNTED_DATA_PATH}/apps:/var/html/www/nextcloud/apps
     ports:
       - ${PORT}:443
     restart: unless-stopped
@@ -41,8 +41,7 @@ services:
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=${DATABASE_PASSWORD}
     volumes:
-      - /portainer/Files/AppData/Config/Nextcloud/DB:/config
-      - ${MOUNTED_DATABASE_PATH}:/var/lib/mysql
+      - ${MOUNTED_DATABASE_PATH}:/config
     networks:
       - nextcloud_network
     restart: unless-stopped
