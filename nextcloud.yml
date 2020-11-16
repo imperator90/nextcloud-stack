@@ -22,8 +22,6 @@ services:
     depends_on:
       - maria_db
       - redis
-    networks:
-      - nextcloud_network
 
   maria_db:
     image: linuxserver/mariadb
@@ -38,14 +36,10 @@ services:
       - MYSQL_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - ${MOUNTED_DATABASE_PATH}:/config
-    networks:
-      - nextcloud_network
     restart: unless-stopped
 
   redis:
     image: redis
-    networks:
-      - nextcloud_network
     restart: unless-stopped
 
   collabora:
@@ -65,12 +59,6 @@ services:
       # https://www.collaboraoffice.com/code/nginx-reverse-proxy/
       # SSL terminates at the proxy
       - extra_params=--o:ssl.enable=false --o:ssl.termination=true
-    networks:
-      - nextcloud_network
     depends_on:
       - nextcloud
     restart: unless-stopped
-
-networks:
-  # Enables communication between all containers on the network. Replaces "links"
-  nextcloud_network: 
