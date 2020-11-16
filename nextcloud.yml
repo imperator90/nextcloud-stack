@@ -20,12 +20,12 @@ services:
       - ${PORT}:443
     restart: unless-stopped
     depends_on:
-      - nextcloud_db
+      - maria_db
       - redis
     networks:
       - nextcloud_network
 
-  nextcloud_db:
+  maria_db:
     image: linuxserver/mariadb
     container_name: nextcloud_db
     environment:
@@ -33,7 +33,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=nextcloud_db
+      - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=${DATABASE_PASSWORD}
     volumes:
