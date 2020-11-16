@@ -19,9 +19,10 @@ services:
     ports:
       - ${PORT}:443
     restart: unless-stopped
-    depends_on:
+    links:
       - maria_db
       - redis
+      - collabora
 
   maria_db:
     image: linuxserver/mariadb
@@ -59,6 +60,4 @@ services:
       # https://www.collaboraoffice.com/code/nginx-reverse-proxy/
       # SSL terminates at the proxy
       - extra_params=--o:ssl.enable=false --o:ssl.termination=true
-    depends_on:
-      - nextcloud
     restart: unless-stopped
