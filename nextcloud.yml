@@ -8,7 +8,7 @@ services:
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
-      - TZ=${TZ}
+      - TZ=Europe/Stockholm
       # The domain name used to access Nextcloud. Ever used?
       - VIRTUAL_HOST=${NEXTCLOUD_VIRTUAL_HOST}
       - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_VIRTUAL_HOST}
@@ -17,7 +17,7 @@ services:
       - ${MOUNTED_DATA_PATH}/data:/data
       - ${MOUNTED_DATA_PATH}/apps:/var/html/www/nextcloud/apps
     ports:
-      - ${PORT}:443
+      - 7000:443
     restart: unless-stopped
     links:
       - maria_db
@@ -30,11 +30,7 @@ services:
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
-      - TZ=${TZ}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+      - TZ=Europe/Stockholm
     volumes:
       - ${MOUNTED_DATABASE_PATH}:/config
     restart: unless-stopped
